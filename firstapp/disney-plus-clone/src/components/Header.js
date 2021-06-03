@@ -1,30 +1,43 @@
 import React from 'react'
 import {auth, provider} from "../firebase";
 import styled from 'styled-components'
+import { useHistory } from "react-router-dom"
 import {
     selectUserName,
     selectUserPhoto,
-    setUserLogin
+    setUserLogin,
+    setSignOut
 } from "../features/user/userSlice"
 import {useDispatch, useSelector} from "react-redux"
 
 function Header() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch()
+    const history = useHistory()
     const userName = useSelector(selectUserName);
     const userPhoto = useSelector(selectUserPhoto);
 
     const signIn = () => {
         auth.signInWithPopup(provider)
         .then((result)=>
-        {   
-            let user = result.user
+        {   let user = result.user
             dispatch(setUserLogin({
                 name: user.displayName,
                 email: user.email,
                 photo: user.photoURL
             }))
+
+        })
+        
+    }
+
+    const signOut = () => {
+        auth.signOut()
+        .then(()=>{
+            dispatch(setSignOut());
+            history.push("/login")
         })
     }
+
     return (
         <Nav>
             <Logo src="/images/logo.svg" /> 
@@ -62,7 +75,9 @@ function Header() {
                         </a>
 
                         </NavMenu>
-                    <UserImg src="/images/shanks.jpg" />
+                    <UserImg 
+                    onClick={signOut}
+                    src="/images/shanks.jpg" />
             
                 </>
             }
